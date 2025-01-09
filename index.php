@@ -1,4 +1,6 @@
+<?php require_once __DIR__ . '/Classes/AutoLoader.php'; ?>
 <?php require_once __DIR__ . '/includes/header.php'; ?>
+<?php require_once __DIR__ . '/Classes/functions.php'; ?>
 
 
 <!DOCTYPE html>
@@ -10,6 +12,15 @@
     <title>Document</title>
 </head>
 <body>
-    <main></main>
+    <main>
+        <h1>Questions : </h1>
+        <?php
+            AutoLoader::register();
+            $questions = getQuestions();
+            foreach ($questions as $question) {
+                $question->render();
+            }
+        ?>
+    </main>
 </body>
 </html>
