@@ -1,6 +1,20 @@
-<?php require_once __DIR__ . '/Classes/AutoLoader.php'; ?>
-<?php require_once __DIR__ . '/includes/header.php'; ?>
-<?php require_once __DIR__ . '/Classes/functions.php'; ?>
+<?php 
+
+
+
+require_once __DIR__ . '/Classes/AutoLoader.php';
+require_once __DIR__ .'/includes/header.php';
+
+
+
+AutoLoader::register();
+
+use models\Questions;
+use models\Questions_simple;
+use models\Provider;
+
+
+?>
 
 
 <!DOCTYPE html>
@@ -15,10 +29,10 @@
     <main>
         <h1>Questions : </h1>
         <?php
-            AutoLoader::register();
-            $questions = getQuestions();
+            $provider = new Provider();        
+            $questions = $provider->getQuestions();
             foreach ($questions as $question) {
-                $question->render();
+                echo $question->render();
             }
         ?>
     </main>

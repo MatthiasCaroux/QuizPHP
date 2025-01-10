@@ -1,9 +1,8 @@
 <?php
 
-namespace Classes;
+namespace models;
 
 
-require_once 'functions.php';
 abstract class Questions{
     protected $uuid;
     protected $label;

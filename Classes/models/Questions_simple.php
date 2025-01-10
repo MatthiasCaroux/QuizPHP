@@ -1,6 +1,8 @@
 <?
 
-namespace Classes;
+namespace models;
+
+use models\Questions;
 
 class Questions_simple extends Questions{
     private $listereponse;

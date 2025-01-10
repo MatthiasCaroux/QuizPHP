@@ -7,18 +7,9 @@ class AutoLoader {
 
     public static function autoload($fqcn) {
         $path = str_replace('\\', '/', $fqcn);
-        $file = __DIR__ . '/' . $path . '.php';
-    
-
-    
-        if (file_exists($file)) {
-            require $file;
-        } else {
-            throw new Exception("Fichier introuvable pour la classe : $fqcn (chemin attendu : $file)");
-        }
+        require 'Classes/' . $path . '.php';
     }
     
 }
 
-// Enregistrement de l'autoloader
-AutoLoader::register();
+?>
