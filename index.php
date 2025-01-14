@@ -13,7 +13,7 @@ use Form\Type\Text;
 use Form\Type\Textarea;
 // use Form\Type\Checkbox;
 // use Form\Type\Radio;
-// etc.
+
 
 // 3. Inclusion de la fonction pour charger les questions
 require_once __DIR__ . '/question.php';
@@ -80,125 +80,127 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Mon Quiz PHP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <h1>Bienvenue sur mon mini-site de Quiz</h1>
+    <div class="quiz-container">
+        <h1>Bienvenue sur mon mini-site de Quiz</h1>
 
-    <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
-        <!-- 
-            Formulaire soumis : 
-            1) Afficher le score 
-            2) Afficher les réponses de l'utilisateur et la réponse attendue 
-        -->
-        <h2>Résultat du Quiz</h2>
-        <p>Score obtenu : <strong><?= $scoreObtenu ?></strong> / <?= $totalScore ?></p>
+        <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
+            <!-- 
+                Formulaire soumis : 
+                1) Afficher le score 
+                2) Afficher les réponses de l'utilisateur et la réponse attendue 
+            -->
+            <h2>Résultat du Quiz</h2>
+            <p>Score obtenu : <strong><?= $scoreObtenu ?></strong> / <?= $totalScore ?></p>
 
-        <h3>Vos réponses :</h3>
-        <ul>
-            <?php foreach ($questions as $question): ?>
-                <?php
-                    $qName    = $question['name'];
-                    $userVal  = $reponsesUser[$qName] ?? null;
-                    $expected = $question['answer'];
-
-                    // Formatage pour l'affichage
-                    if (is_array($userVal)) {
-                        $userVal = implode(', ', $userVal);
-                    }
-                    if (is_array($expected)) {
-                        $expected = implode(', ', $expected);
-                    }
-                ?>
-                <li>
-                    <strong><?= htmlentities($question['text']) ?></strong><br>
-                    Votre réponse : <em><?= htmlentities($userVal) ?></em><br>
-                    Réponse attendue : <em><?= htmlentities($expected) ?></em>
-                </li>
-            <?php endforeach; ?>
-        </ul>
-
-        <p>
-            <a href="index.php">Recommencer le Quiz</a>
-        </p>
-
-    <?php else: ?>
-        <!-- 
-            Formulaire non soumis : 
-            Afficher le quiz (questions + champs de saisie)
-        -->
-        <form method="post" action="">
-            <?php foreach ($questions as $question): ?>
-                <div style="margin-bottom:1em;">
-                    <label><strong><?= htmlentities($question['text']) ?></strong></label><br>
-
+            <h3>Vos réponses :</h3>
+            <ul>
+                <?php foreach ($questions as $question): ?>
                     <?php
-                    $qName = $question['name'];
-                    $qType = $question['type'];
-                    
-                    switch ($qType) {
-                        case 'text':
-                            // Exemple d’utilisation de ta classe Text
-                            // (Tu peux éventuellement passer un 3e param "value" si tu veux un placeholder)
-                            $textInput = new Text($qName, false, '');
-                            echo $textInput->render();
-                            break;
+                        $qName    = $question['name'];
+                        $userVal  = $reponsesUser[$qName] ?? null;
+                        $expected = $question['answer'];
 
-                        case 'radio':
-                            // On boucle sur les 'choices'
-                            if (!empty($question['choices'])) {
-                                foreach ($question['choices'] as $choice) {
-                                    ?>
-                                    <label>
-                                        <input 
-                                            type="radio" 
-                                            name="<?= htmlentities($qName) ?>" 
-                                            value="<?= htmlentities($choice['value']) ?>"
-                                        >
-                                        <?= htmlentities($choice['text']) ?>
-                                    </label>
-                                    <br>
-                                    <?php
-                                }
-                            }
-                            break;
-
-                        case 'checkbox':
-                            // Pour récupérer un tableau de réponses : name="drapeau[]"
-                            if (!empty($question['choices'])) {
-                                foreach ($question['choices'] as $choice) {
-                                    ?>
-                                    <label>
-                                        <input 
-                                            type="checkbox"
-                                            name="<?= htmlentities($qName) ?>[]"
-                                            value="<?= htmlentities($choice['value']) ?>"
-                                        >
-                                        <?= htmlentities($choice['text']) ?>
-                                    </label>
-                                    <br>
-                                    <?php
-                                }
-                            }
-                            break;
-
-                        case 'textarea':
-                            // Exemple d'utilisation de ta classe Textarea
-                            $textArea = new Textarea($qName, false, '');
-                            echo $textArea->render();
-                            break;
-
-                        default:
-                            // Si tu as d’autres types (date, select, etc.), gère-les ici.
-                            echo "<input type=\"text\" name=\"" . htmlentities($qName) . "\" />";
-                            break;
-                    }
+                        // Formatage pour l'affichage
+                        if (is_array($userVal)) {
+                            $userVal = implode(', ', $userVal);
+                        }
+                        if (is_array($expected)) {
+                            $expected = implode(', ', $expected);
+                        }
                     ?>
-                </div>
-            <?php endforeach; ?>
+                    <li>
+                        <strong><?= htmlentities($question['text']) ?></strong><br>
+                        Votre réponse : <em><?= htmlentities($userVal) ?></em><br>
+                        Réponse attendue : <em><?= htmlentities($expected) ?></em>
+                    </li>
+                <?php endforeach; ?>
+            </ul>
 
-            <button type="submit">Envoyer</button>
-        </form>
-    <?php endif; ?>
+            <p>
+                <a href="index.php">Recommencer le Quiz</a>
+            </p>
 
+        <?php else: ?>
+            <!-- 
+                Formulaire non soumis : 
+                Afficher le quiz (questions + champs de saisie)
+            -->
+            <form method="post" action="">
+                <?php foreach ($questions as $question): ?>
+                    <div class="form-group">
+                        <label><strong><?= htmlentities($question['text']) ?></strong></label><br>
+
+                        <?php
+                        $qName = $question['name'];
+                        $qType = $question['type'];
+                        
+                        switch ($qType) {
+                            case 'text':
+                                // Exemple d’utilisation de ta classe Text
+                                // (Tu peux éventuellement passer un 3e param "value" si tu veux un placeholder)
+                                $textInput = new Text($qName, false, '');
+                                echo $textInput->render();
+                                break;
+
+                            case 'radio':
+                                // On boucle sur les 'choices'
+                                if (!empty($question['choices'])) {
+                                    foreach ($question['choices'] as $choice) {
+                                        ?>
+                                        <label>
+                                            <input 
+                                                type="radio" 
+                                                name="<?= htmlentities($qName) ?>" 
+                                                value="<?= htmlentities($choice['value']) ?>"
+                                            >
+                                            <?= htmlentities($choice['text']) ?>
+                                        </label>
+                                        <br>
+                                        <?php
+                                    }
+                                }
+                                break;
+
+                            case 'checkbox':
+                                // Pour récupérer un tableau de réponses : name="drapeau[]"
+                                if (!empty($question['choices'])) {
+                                    foreach ($question['choices'] as $choice) {
+                                        ?>
+                                        <label>
+                                            <input 
+                                                type="checkbox"
+                                                name="<?= htmlentities($qName) ?>[]"
+                                                value="<?= htmlentities($choice['value']) ?>"
+                                            >
+                                            <?= htmlentities($choice['text']) ?>
+                                        </label>
+                                        <br>
+                                        <?php
+                                    }
+                                }
+                                break;
+
+                            case 'textarea':
+                                // Exemple d'utilisation de ta classe Textarea
+                                $textArea = new Textarea($qName, false, '');
+                                echo $textArea->render();
+                                break;
+
+                            default:
+                                // Si tu as d’autres types (date, select, etc.), gère-les ici.
+                                echo "<input type=\"text\" name=\"" . htmlentities($qName) . "\" />";
+                                break;
+                        }
+                        ?>
+                    </div>
+                <?php endforeach; ?>
+
+                <button type="submit">Envoyer</button>
+            </form>
+        <?php endif; ?>
+    </div>
 </body>
 </html>
