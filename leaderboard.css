@@ -1,0 +1,47 @@
+/* ----- LEADERBOARD CSS ----- */
+
+/* Table pour le classement */
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1em;
+    background-color: #fff;
+}
+
+/* En-tête du tableau */
+thead tr {
+    background-color: #0066cc;
+    color: #fff;
+}
+thead th {
+    padding: 0.8em;
+    text-align: left;
+    font-weight: bold;
+}
+
+/* Corps du tableau */
+tbody tr:nth-child(even) {
+    background-color: #f9f9f9; /* Couleur de fond pour les lignes paires */
+}
+tbody tr:hover {
+    background-color: #f1f1f1; /* Survol */
+}
+tbody td {
+    padding: 0.8em;
+    border-bottom: 1px solid #ddd;
+}
+
+/* Premier TD (position) plus centré, par exemple */
+tbody td:first-child {
+    text-align: center;
+    width: 70px;
+}
+
+/* Bouton / liens */
+a {
+    color: #0066cc;
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}

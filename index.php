@@ -1,62 +1,51 @@
 <?php
-// ---------------------------------------------------------------------------
 // index.php
-// Point d’entrée principal du site de Quiz
-// ---------------------------------------------------------------------------
 
-// 1. Chargement de l'autoloader (si nécessaire)
 require_once __DIR__ . '/Classes/Autoloader.php';
 Autoloader::register();
 
-// 2. (Optionnel) Import de classes de formulaire que tu souhaites utiliser
 use Form\Type\Text;
 use Form\Type\Textarea;
-// use Form\Type\Checkbox;
-// use Form\Type\Radio;
-// etc.
 
-// 3. Inclusion de la fonction pour charger les questions
+// Récupération des questions
 require_once __DIR__ . '/question.php';
 
-// Tentative de chargement des questions
 try {
     $questions = getQuestions();
 } catch (Exception $e) {
-    // En cas d'erreur (fichier manquant, JSON corrompu, etc.)
     die("Erreur lors de la récupération des questions : " . $e->getMessage());
 }
 
-// 4. Variables pour le calcul du score
-$totalScore   = 0;           // score total possible
-$scoreObtenu  = 0;           // score de l'utilisateur
-$reponsesUser = [];          // on stockera les réponses de l'utilisateur
+$totalScore   = 0;
+$scoreObtenu  = 0;
+$reponsesUser = [];  
 
-// 5. Si le formulaire est soumis, on compare chaque réponse
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
+    // -- 1) Connexion à la base SQLite
+    // (Assure-toi que quiz.db est bien créé via create_db.php)
+    $pdo = new PDO('sqlite:' . __DIR__ . '/quiz.db');
+    $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+
     foreach ($questions as $question) {
+        $qName   = $question['name'];
+        $qType   = $question['type'];
+        $qAnswer = $question['answer'];
+        $qScore  = $question['score'];
 
-        $qName   = $question['name'];     // nom du champ (ex: 'ultime')
-        $qType   = $question['type'];     // type du champ (text, radio, checkbox...)
-        $qAnswer = $question['answer'];   // réponse attendue
-        $qScore  = $question['score'];    // points accordés si bonne réponse
-
-        // Incrément du score total
         $totalScore += $qScore;
 
         // Récupération de la réponse de l'utilisateur
+        // (si tu as modifié Input.php/Textarea.php pour enlever "form[]")
         $userValue = $_POST[$qName] ?? null;
-
-        // On stocke la réponse de l'utilisateur pour l'afficher ensuite
+        
         $reponsesUser[$qName] = $userValue;
 
-        // Vérification de la réponse
+        // Vérification de la réponse pour calculer le score
         if ($qType === 'checkbox') {
-            // S'assure que ce soit un tableau
             if (!is_array($userValue)) {
                 $userValue = [];
             }
-            // Tri pour comparer sans se soucier de l'ordre
             sort($userValue);
             $expected = (array) $qAnswer;
             sort($expected);
@@ -64,35 +53,43 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($userValue == $expected) {
                 $scoreObtenu += $qScore;
             }
-
         } else {
-            // text ou radio (ou tout autre champ simple)
             if ($userValue === $qAnswer) {
                 $scoreObtenu += $qScore;
             }
         }
     }
+
+    // -- 2) On récupère le nom du joueur (ex: "player_name") 
+    // pour l'insérer en base :
+    $playerName = $reponsesUser['player_name'] ?? 'Anonyme';
+
+    // -- 3) Insertion du nom et du score dans la table "players"
+    $stmt = $pdo->prepare("INSERT INTO players (name, score) VALUES (:name, :score)");
+    $stmt->bindValue(':name',  $playerName, PDO::PARAM_STR);
+    $stmt->bindValue(':score', $scoreObtenu, PDO::PARAM_INT);
+    $stmt->execute();
 }
 
 ?>
+
 <!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
     <title>Mon Quiz PHP</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div class="container">
     <h1>Bienvenue sur mon mini-site de Quiz</h1>
 
     <?php if ($_SERVER['REQUEST_METHOD'] === 'POST'): ?>
-        <!-- 
-            Formulaire soumis : 
-            1) Afficher le score 
-            2) Afficher les réponses de l'utilisateur et la réponse attendue 
-        -->
         <h2>Résultat du Quiz</h2>
-        <p>Score obtenu : <strong><?= $scoreObtenu ?></strong> / <?= $totalScore ?></p>
-
+        <p class="score">
+            Score obtenu : <strong><?= $scoreObtenu ?></strong> / <?= $totalScore ?>
+        </p>
         <h3>Vos réponses :</h3>
         <ul>
             <?php foreach ($questions as $question): ?>
@@ -101,7 +98,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $userVal  = $reponsesUser[$qName] ?? null;
                     $expected = $question['answer'];
 
-                    // Formatage pour l'affichage
                     if (is_array($userVal)) {
                         $userVal = implode(', ', $userVal);
                     }
@@ -116,35 +112,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </li>
             <?php endforeach; ?>
         </ul>
-
         <p>
-            <a href="index.php">Recommencer le Quiz</a>
+            <a href="index.php" class="retry-link">Recommencer le Quiz</a>
         </p>
 
     <?php else: ?>
-        <!-- 
-            Formulaire non soumis : 
-            Afficher le quiz (questions + champs de saisie)
-        -->
         <form method="post" action="">
             <?php foreach ($questions as $question): ?>
-                <div style="margin-bottom:1em;">
+                <div>
                     <label><strong><?= htmlentities($question['text']) ?></strong></label><br>
-
                     <?php
                     $qName = $question['name'];
                     $qType = $question['type'];
                     
                     switch ($qType) {
                         case 'text':
-                            // Exemple d’utilisation de ta classe Text
-                            // (Tu peux éventuellement passer un 3e param "value" si tu veux un placeholder)
                             $textInput = new Text($qName, false, '');
                             echo $textInput->render();
                             break;
-
                         case 'radio':
-                            // On boucle sur les 'choices'
                             if (!empty($question['choices'])) {
                                 foreach ($question['choices'] as $choice) {
                                     ?>
@@ -155,15 +141,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             value="<?= htmlentities($choice['value']) ?>"
                                         >
                                         <?= htmlentities($choice['text']) ?>
-                                    </label>
-                                    <br>
+                                    </label><br>
                                     <?php
                                 }
                             }
                             break;
-
                         case 'checkbox':
-                            // Pour récupérer un tableau de réponses : name="drapeau[]"
                             if (!empty($question['choices'])) {
                                 foreach ($question['choices'] as $choice) {
                                     ?>
@@ -174,21 +157,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                                             value="<?= htmlentities($choice['value']) ?>"
                                         >
                                         <?= htmlentities($choice['text']) ?>
-                                    </label>
-                                    <br>
+                                    </label><br>
                                     <?php
                                 }
                             }
                             break;
-
                         case 'textarea':
-                            // Exemple d'utilisation de ta classe Textarea
                             $textArea = new Textarea($qName, false, '');
                             echo $textArea->render();
                             break;
-
                         default:
-                            // Si tu as d’autres types (date, select, etc.), gère-les ici.
                             echo "<input type=\"text\" name=\"" . htmlentities($qName) . "\" />";
                             break;
                     }
@@ -199,6 +177,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <button type="submit">Envoyer</button>
         </form>
     <?php endif; ?>
+    <p style="margin-top:2em;">
+        <a href="leaderboard.php">Voir le classement</a>
+    </p>
+</div>
 
 </body>
 </html>
