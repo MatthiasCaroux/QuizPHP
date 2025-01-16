@@ -24,7 +24,7 @@ $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 <head>
     <meta charset="UTF-8">
     <title>Classement</title>
-    <link rel="stylesheet" href="leaderboard.css">
+    <link rel="stylesheet" href="static/css/leaderboard.css">
 </head>
 <body>
 

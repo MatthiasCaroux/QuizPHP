@@ -22,8 +22,7 @@ $reponsesUser = [];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
-    // -- 1) Connexion à la base SQLite
-    // (Assure-toi que quiz.db est bien créé via create_db.php)
+
     $pdo = new PDO('sqlite:' . __DIR__ . '/quiz.db');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
 
@@ -78,7 +77,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <head>
     <meta charset="UTF-8">
     <title>Mon Quiz PHP</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
 

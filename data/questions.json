@@ -3,7 +3,7 @@
         "name": "player_name",
         "type": "text",
         "text": "Quel est votre nom ?",
-        "answer": "",
+        "answer": "Votre nom ;)",
         "score": 0
     },
     {
