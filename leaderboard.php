@@ -1,7 +1,5 @@
 <?php
 // leaderboard.php
-
-// 1) Connexion à la DB
 try {
     $pdo = new PDO('sqlite:' . __DIR__ . '/quiz.db');
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
@@ -9,12 +7,11 @@ try {
     die("Erreur de connexion à la base SQLite : " . $e->getMessage());
 }
 
-// 2) Requête pour récupérer le classement
-// Tu peux ajuster LIMIT si tu ne veux que les 10 meilleurs, par exemple :
+
 $sql = "SELECT name, score, created_at
         FROM players
         ORDER BY score DESC, created_at ASC
-        /* LIMIT 10 */"; // Si tu veux limiter l'affichage
+        ";
 $stmt = $pdo->query($sql);
 $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 ?>

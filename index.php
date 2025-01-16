@@ -7,7 +7,6 @@ Autoloader::register();
 use Form\Type\Text;
 use Form\Type\Textarea;
 
-// Récupération des questions
 require_once __DIR__ . '/question.php';
 
 try {
@@ -34,13 +33,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $totalScore += $qScore;
 
-        // Récupération de la réponse de l'utilisateur
-        // (si tu as modifié Input.php/Textarea.php pour enlever "form[]")
+
         $userValue = $_POST[$qName] ?? null;
         
         $reponsesUser[$qName] = $userValue;
 
-        // Vérification de la réponse pour calculer le score
+        // calcul du score
         if ($qType === 'checkbox') {
             if (!is_array($userValue)) {
                 $userValue = [];
@@ -59,11 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    // -- 2) On récupère le nom du joueur (ex: "player_name") 
-    // pour l'insérer en base :
+
     $playerName = $reponsesUser['player_name'] ?? 'Anonyme';
 
-    // -- 3) Insertion du nom et du score dans la table "players"
+    // Insertion du nom en bd
     $stmt = $pdo->prepare("INSERT INTO players (name, score) VALUES (:name, :score)");
     $stmt->bindValue(':name',  $playerName, PDO::PARAM_STR);
     $stmt->bindValue(':score', $scoreObtenu, PDO::PARAM_INT);

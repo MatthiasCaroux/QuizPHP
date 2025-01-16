@@ -9,9 +9,8 @@
  */
 function getQuestions(): array
 {
-    $source = __DIR__ . '/data/questions.json'; // Chemin vers ton fichier JSON
-    $content = @file_get_contents($source); // @ pour éviter l'avertissement si le fichier n'existe pas
-
+    $source = __DIR__ . '/data/questions.json'; 
+    $content = @file_get_contents($source); 
     if ($content === false) {
         throw new Exception("Impossible de lire le fichier JSON : $source");
     }
