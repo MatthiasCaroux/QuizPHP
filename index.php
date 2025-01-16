@@ -175,6 +175,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php endif; ?>
     <p style="margin-top:2em;">
         <a href="leaderboard.php">Voir le classement</a>
+        <a href="add_question.php" >Ajouter une question</a>
+
     </p>
 </div>
 
