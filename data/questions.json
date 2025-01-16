@@ -1,5 +1,12 @@
 [
     {
+        "name": "player_name",
+        "type": "text",
+        "text": "Quel est votre nom ?",
+        "answer": "",
+        "score": 0
+    },
+    {
         "name": "ultime",
         "type": "text",
         "text": "Quelle est la réponse ultime?",
